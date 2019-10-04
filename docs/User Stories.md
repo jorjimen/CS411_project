@@ -1,9 +1,9 @@
-# User Stories  
+# User Stories Document  
 
 ## General Flow of the Web Application
   Open page.
   
-  Login to Spotify
+  Login through Spotify.
   
   First time: Set music preferences - either from existing spotify playlists, or select genres, or both.
   
@@ -20,11 +20,10 @@
     
    Existing Routes - Choose from a list of saved routes.
 
-## User Stories
-      May subject to change over time.
+## User Stories 
 
 ### New User Trying to Make a Route and Playlist
-  The user will first open the webpage and will be prompted to log in to Spotify. Since it’s their first login they will be asked to select whether they want songs from their preexisting spotify playlists or from certain genres. The user will then input the station they are currently at and where they would like to go and press the generate button. A list of possible routes will appear and the user will select one. A detailed view of the route will appear and they will have the option to generate a playlist as well as to save this route for future use.
+   The user will first open the webpage and will be prompted to log in to Spotify. Since it’s their first login they will be asked to select whether they want songs from their preexisting spotify playlists or from certain genres. The user will then input the station they are currently at and where they would like to go and press the generate button. A list of possible routes will appear and the user will select one. A detailed view of the route will appear and they will have the option to generate a playlist as well as to save this route for future use.
 
 ### Existing User Wants Playlist for Specific Route
   The user will open the webpage and log in. Then they will input the station they are currently at and where they would like to go and press the generate button. They will look through the list of routes and select the specific route they were looking for. Then, they will click the generate playlist button to generate a playlist.
