@@ -1,0 +1,152 @@
+<html>
+
+  <head>
+        <style>
+     h2 {
+       	font-family: Times New Roman; 
+       	color:green; 
+       	font-weight: 100; 
+       	font-size:30 ; 
+    }
+      .routes{
+        font-family: Times New Roman; 
+        color:orange; 
+        font-weight: 50; 
+        font-size:15 ; 
+        }
+      .submit{
+        border-style: ridge;
+        border-radius: 80%; 
+        border-color: yellowgreen; 
+        border-width: thick 15; 
+        color: white; 
+        background-color: skyblue;
+        font-family: Times New Roman; 
+        color:black; 
+        font-weight: 100; 
+        font-size:20 ; 
+        }
+        .submit:hover {background-image:none; background-color:#F8CA48;}
+
+          
+      table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      
+      }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+    
+  	<script type="text/javascript">
+    
+      var routeID = {}
+      
+      function getRoutes() {
+        const request = new XMLHttpRequest()
+        const select = document.getElementById('listOfRoutes');
+        request.open('GET', 'https://api-v3.mbta.com/routes', true)
+
+        request.onload = function() {
+          const route_data = JSON.parse(this.response)
+          console.log(route_data)
+          for (var i = 0; i < 192; i++) {
+            const toAdd = document.createElement('option');
+            const name = route_data["data"][i]["attributes"]["long_name"]
+            const id = route_data["data"][i]["id"]
+            toAdd.text = name
+            routeID[name] = id
+            select.add(toAdd)
+          }
+    
+        }
+        request.send()
+      }
+      
+      function clickSubmit() {
+          const select = document.getElementById("listOfRoutes")
+          const id = routeID[select.value]
+          const endpoint = "https://api-v3.mbta.com/stops/?filter[route]=" + id + "&filter[direction_id]=0"
+          const request = new XMLHttpRequest()
+        	request.open('GET', endpoint, true)
+        	request.onload = function() {
+          	const schedule = JSON.parse(this.response) 
+            addRows(schedule)
+          }
+          request.send() 
+      }
+      
+      function addRows(stops) {
+        var table = document.getElementById("Table");
+        
+        while(table.rows.length > 1) {
+  				table.deleteRow(-1);
+				}
+        
+        const len = Object.keys(stops["data"]).length
+        console.log(len)
+      	for (var i = 0; i < len; i++) {
+            const row = table.insertRow(-1);
+						const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+          	const cell3 = row.insertCell(2);
+          	const cell4 = row.insertCell(3);
+          	cell1.innerHTML = stops["data"][i]["attributes"]["name"];
+          	cell2.innerHTML = stops["data"][i]["attributes"]["longitude"];
+            cell3.innerHTML = stops["data"][i]["attributes"]["latitude"];
+            cell4.innerHTML = stops["data"][i]["attributes"]["address"];
+         		// cell5.innerHTML = stops["data"][i]["attribues"]["wheelchair_boarding"];
+        }
+      }
+    
+ 
+		</script>
+    
+  </head>
+
+  <body onload = "getRoutes()">
+
+  <div>
+      
+    
+    <h2> Please select Route to view its schedule </h2>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/db/2013_unofficial_MBTA_subway_map_by_Michael_Kvrivishvili.png"width=500; height=500>
+	<select class = "routes"id = "listOfRoutes">
+	</select> 
+    
+    
+  
+  
+  <input class="submit"type="submit" value="Submit" onclick = "clickSubmit()">
+
+  </div>
+      
+  <div>
+  <h2>Information about your route</h2>
+
+  <table id="Table">
+    <tr>
+      <th>Name</th>
+      <th>Longitude</th>
+      <th>Latitude</th>
+      <th>Address</th>
+    </tr>
+  </table>
+  
+  </div>
+    
+  </body>
+  
+
+  
+
+</html>
