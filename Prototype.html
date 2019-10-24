@@ -1,0 +1,163 @@
+<html>
+
+  <head>
+    
+    <style>
+      
+     h2 {
+       	font-family: Times New Roman; 
+       	color:green; 
+       	font-weight: 100; 
+       	font-size:30 ; 
+    }
+  
+    body {
+        font-family: Helvetica, Sans-Serif;
+        color: #F2F2F2;
+        font-size: 9pt;
+        background-color: #F2F2F2;
+      }
+      
+    .header {
+      background-color: #3B945E;
+      text-align: left;
+      padding: 20px;
+    }
+      
+    .select {
+    	padding: 5px;
+      float: right;
+    }
+    
+    #routes {
+      font-family: Helvetica, Sans-Serif;
+      background-color: white;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #routes td, #routes th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+  	#routes tr:nth-child(even){
+      background-color: #f2f2f2;
+    }
+
+    #routes th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #3B945E;
+      color: white;
+  	}
+
+    #routes tr {
+    	color: #3B945E
+    }   
+        
+    #noinfo {
+    	padding: 10px;
+      font-family: Helvetica, Sans-Serif;
+      text-align: center;
+      color: #3B945E
+    }
+        
+    #no_information {
+      font-family: Helvetica, Sans-Serif;
+      text-align: center;
+      color: #3B945E 
+    }
+	
+  </style>
+    
+	<script type="text/javascript">
+    
+  		var routeID = {}
+      
+      function getRoutes() {
+        const request = new XMLHttpRequest()
+        const select = document.getElementById('listOfRoutes');
+        request.open('GET', 'https://api-v3.mbta.com/routes', true)
+        request.onload = function() {
+          const route_data = JSON.parse(this.response)
+          const len = Object.keys(route_data["data"]).length
+          for (var i = 0; i < len; i++) {
+            const toAdd = document.createElement('option');
+            const name = route_data["data"][i]["attributes"]["long_name"]
+            const id = route_data["data"][i]["id"]
+            toAdd.text = name
+            routeID[name] = id
+            select.add(toAdd)
+          }
+    
+        }
+        request.send()
+      }
+      
+      function clickSubmit() {
+          const select = document.getElementById("listOfRoutes")
+          const id = routeID[select.value]
+          const endpoint = "https://api-v3.mbta.com/stops/?filter[route]=" + id + "&filter[direction_id]=0"
+          const request = new XMLHttpRequest()
+        	request.open('GET', endpoint, true)
+        	request.onload = function() {
+          	const schedule = JSON.parse(this.response) 
+            addRows(schedule)
+          }
+          request.send() 
+      }
+      
+      function addRows(stops) {
+        const table = document.getElementById("routes");
+        document.getElementById("no_information").style.visibility = "hidden";
+        while(table.rows.length > 1) {
+  		    table.deleteRow(-1);
+        }
+        const len = Object.keys(stops["data"]).length
+      	for (var i = 0; i < len; i++) {
+            const row = table.insertRow(-1);
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+          	const cell3 = row.insertCell(2);
+          	const cell4 = row.insertCell(3);
+          	cell1.innerHTML = stops["data"][i]["attributes"]["name"];
+          	cell2.innerHTML = stops["data"][i]["attributes"]["latitude"];
+            cell3.innerHTML = stops["data"][i]["attributes"]["longitude"];
+            cell4.innerHTML = stops["data"][i]["attributes"]["address"];
+        }
+      }
+    
+		</script>
+    
+  </head>
+
+  <body onload = "getRoutes()">
+  
+  <div class="header">
+  	<h1> Tune Your Ride : Prototype </h1>
+  </div>
+    
+  <div class = "select"> 
+  <select class = "routes"id = "listOfRoutes">
+  </select> 
+  <input class="submit" id = "submit" type="submit" value="SEARCH" onclick = "clickSubmit()">
+  </div>
+    
+  <table id="routes">
+    <tr>
+      <th>Name</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Address</th>
+    </tr>
+  </table>
+      
+  <div id = "noinfo">
+      <h4 id = "no_information"> PLEASE SELECT ROUTE FROM LIST </h4>
+  </div>
+  
+  </body>
+  
+</html>
