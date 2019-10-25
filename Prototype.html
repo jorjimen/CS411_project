@@ -81,17 +81,20 @@
         const select = document.getElementById('listOfRoutes');
         request.open('GET', 'https://api-v3.mbta.com/routes', true)
         request.onload = function() {
-          const route_data = JSON.parse(this.response)
-          const len = Object.keys(route_data["data"]).length
-          for (var i = 0; i < len; i++) {
-            const toAdd = document.createElement('option');
-            const name = route_data["data"][i]["attributes"]["long_name"]
-            const id = route_data["data"][i]["id"]
-            toAdd.text = name
-            routeID[name] = id
-            select.add(toAdd)
+          if (request.status == 400) {
+            alert("An unknown error has occured. Please try again later.")
+          } else {
+            const route_data = JSON.parse(this.response)
+            const len = Object.keys(route_data["data"]).length
+            for (var i = 0; i < len; i++) {
+              const toAdd = document.createElement('option');
+              const name = route_data["data"][i]["attributes"]["long_name"]
+              const id = route_data["data"][i]["id"]
+              toAdd.text = name
+              routeID[name] = id
+              select.add(toAdd)
+            }
           }
-    
         }
         request.send()
       }
@@ -103,8 +106,12 @@
           const request = new XMLHttpRequest()
         	request.open('GET', endpoint, true)
         	request.onload = function() {
-          	const schedule = JSON.parse(this.response) 
-            addRows(schedule)
+            if (request.status == 400) {
+              alert("An unknown error has occured. Please try again later.")
+            } else {
+              const schedule = JSON.parse(this.response) 
+              addRows(schedule)
+            }
           }
           request.send() 
       }
@@ -125,10 +132,15 @@
           	cell1.innerHTML = stops["data"][i]["attributes"]["name"];
           	cell2.innerHTML = stops["data"][i]["attributes"]["latitude"];
             cell3.innerHTML = stops["data"][i]["attributes"]["longitude"];
-            cell4.innerHTML = stops["data"][i]["attributes"]["address"];
+            if (stops["data"][i]["attributes"]["at_street"] != null) {
+                cell4.innerHTML = stops["data"][i]["attributes"]["at_street"] + ", " + stops["data"][i]["attributes"]["municipality"]
+            } else if (stops["data"][i]["attributes"]["on_street"] != null){
+                cell4.innerHTML = stops["data"][i]["attributes"]["on_street"] + ", " + stops["data"][i]["attributes"]["municipality"]
+            } else {
+                cell4.innerHTML = stops["data"][i]["attributes"]["address"];
+            }
         }
       }
-    
 		</script>
     
   </head>
