@@ -10,8 +10,8 @@ router.get('/login', (req, res) =>{
 
 //auth logout
 router.get('/logout', (req, res) =>{
-    //handle with passport
-    res.send('logging out');
+    req.logout();
+    res.redirect('/');
 })
 
 //auth spotify
@@ -23,10 +23,11 @@ router.get('/spotify', passport.authenticate('spotify', {
     // function will not be called.
 });
 
+
 //auth spotify callback
 router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
-    res.send('Login Successful!')
-    }
-);
+    res.send('Login Successful!');
+});
+
 
 module.exports = router;
