@@ -7,10 +7,12 @@ passport.use(
         {
             clientID: spotify.CLIENT_ID,
             clientSecret: spotify.CLIENT_SECRET,
-            callbackURL: 'http://localhost:3000/auth/spotify/callback'
+            callbackURL: '/auth/spotify/callback'
         },
         function(accessToken, refreshToken, expires_in, profile, done) {
-            console.log(accessToken);
+            console.log("Access Token - " + accessToken);
+            console.log("Refresh Token - " + refreshToken);
+            console.log("Expires In - " + expires_in);
         }
     )
 );

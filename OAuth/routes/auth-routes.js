@@ -5,12 +5,12 @@ const router = express.Router();
 //auth login
 router.get('/login', (req, res) =>{
     res.render('login');
-
 });
 
 //auth logout
 router.get('/logout', (req, res) =>{
     req.logout();
+    console.log('Logged out.');
     res.redirect('/');
 })
 
@@ -22,7 +22,6 @@ router.get('/spotify', passport.authenticate('spotify', {
     // The request will be redirected to spotify for authentication, so this
     // function will not be called.
 });
-
 
 //auth spotify callback
 router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
