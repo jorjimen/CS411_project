@@ -24,16 +24,6 @@ router.get('/spotify', passport.authenticate('spotify', {
 });
 
 //auth spotify callback
-/*
-router.get(
-    '/spotify/callback',
-    passport.authenticate('spotify', { failureRedirect: '/login' }),
-    function(req, res) {
-        // Successful authentication, redirect home.
-        res.redirect('/');
-    }
-);*/
-
 router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
     res.send('Login Successful!')
     }
