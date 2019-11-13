@@ -4,7 +4,7 @@ const router = express.Router();
 
 //auth login
 router.get('/login', (req, res) =>{
-    res.render('login');
+    res.render('login', {user: req.user});
 });
 
 //auth logout
@@ -25,8 +25,9 @@ router.get('/spotify', passport.authenticate('spotify', {
 
 //auth spotify callback
 router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
-    res.send('Login Successful!');
+    res.redirect('/profile');
 });
+
 
 
 module.exports = router;

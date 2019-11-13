@@ -1,6 +1,19 @@
 const passport = require('passport');
 const spotify = require('../config/spotify')
 const SpotifyStrategy = require('passport-spotify').Strategy;
+const User = require('../models/user-model');
+
+//user to cookie
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+//cookie to user
+passport.deserializeUser((id, done) => {
+    User.findById(id).then((user)=>{
+        done(null, user);
+    });
+});
 
 passport.use(
     new SpotifyStrategy(
@@ -10,9 +23,25 @@ passport.use(
             callbackURL: '/auth/spotify/callback'
         },
         function(accessToken, refreshToken, expires_in, profile, done) {
-            console.log("Access Token - " + accessToken);
-            console.log("Refresh Token - " + refreshToken);
-            console.log("Expires In - " + expires_in);
+            //check if user already exists in db
+            User.findOne({spotifyId: profile.id}).then((currentUser) =>{
+               if(currentUser){
+                   //user already exists
+                   console.log('User is: ' + currentUser);
+                   done(null, currentUser);
+               } else{
+                   //if not, create user
+                   new User({
+                       username: profile.displayName,
+                       spotifyId: profile.id
+                   }).save().then((newUser) => {
+                       console.log('New User Created: ' + newUser);
+                       done(null, newUser);
+                   });
+               }
+            });
+
+            //then makes it so function fires after save finishes
         }
     )
 );
