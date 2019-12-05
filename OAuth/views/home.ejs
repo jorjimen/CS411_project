@@ -3,59 +3,226 @@
 <head>
     <meta charset="utf-8">
     <title>Tune Your Ride</title>
-    <style>
-        body{
-            font-family: arial;
-            margin: 0;
+
+    <script>
+        var routeID = {}
+        var current_stops1 = []
+        var current_stops2 = []
+        let genres = [
+            "acoustic", "afrobeat", "alt-rock", "alternative", "ambient", "anime", "black-metal", "bluegrass", "blues", "bossanova", "brazil", "breakbeat", "british", "cantopop", "chicago-house", "children", "chill", "classical", "club", "comedy", "country", "dance", "dancehall", "death-metal", "deep-house", "detroit-techno", "disco", "disney", "drum-and-bass", "dub", "dubstep", "edm", "electro", "electronic", "emo", "folk", "forro", "french", "funk", "garage", "german", "gospel", "goth", "grindcore", "groove", "grunge", "guitar", "happy", "hard-rock", "hardcore", "hardstyle", "heavy-metal", "hip-hop", "holidays", "honky-tonk", "house", "idm", "indian", "indie", "indie-pop", "industrial", "iranian", "j-dance", "j-idol", "j-pop", "j-rock", "jazz", "k-pop", "kids", "latin", "latino", "malay", "mandopop", "metal", "metal-misc", "metalcore", "minimal-techno", "movies", "mpb", "new-age", "new-release", "opera", "pagode", "party", "philippines-opm", "piano", "pop", "pop-film", "post-dubstep", "power-pop", "progressive-house", "psych-rock", "punk", "punk-rock", "r-n-b", "rainy-day", "reggae", "reggaeton", "road-trip", "rock", "rock-n-roll", "rockabilly", "romance", "sad", "salsa", "samba", "sertanejo", "show-tunes", "singer-songwriter", "ska", "sleep", "songwriter", "soul", "soundtracks", "spanish", "study", "summer", "swedish", "synth-pop", "tango", "techno", "trance", "trip-hop", "turkish", "work-out", "world-music"
+        ]
+
+        let genresGot = false;
+        function getGenres(){
+            let tempSelect = document.getElementById("listOfGenres");
+            genres.forEach(function(element) {
+                let toAdd = document.createElement('option');
+                toAdd.text = element;
+                tempSelect.add(toAdd);
+            });
+            genresGot = true;
         }
-        nav{
-            background: #ff5353;
-            padding: 20px 10px;
+
+        function getRoutes(num) {
+            const request = new XMLHttpRequest()
+            const select = document.getElementById("listOfRoutes"+num);;
+            request.open('GET', 'https://api-v3.mbta.com/routes', true)
+            request.onload = function() {
+                if (request.status == 400) {
+                    alert("An unknown error has occured. Please try again later.")
+                } else {
+                    const route_data = JSON.parse(this.response)
+                    const len = Object.keys(route_data["data"]).length
+                    for (var i = 0; i < len; i++) {
+                        const toAdd = document.createElement('option');
+                        const name = route_data["data"][i]["attributes"]["long_name"]
+                        const id = route_data["data"][i]["id"]
+                        toAdd.text = name
+                        if (num == 1) {
+                            routeID[name] = id
+                        }
+                        select.add(toAdd)
+                    }
+                }
+            }
+            request.send()
+            if (num == 1) {
+                getRoutes("2")
+            }
+            getGenres();
         }
-        nav ul{
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0;
+
+        function clickSubmit(num) {
+            const select = document.getElementById("listOfRoutes"+num)
+            const id = routeID[select.value]
+            const endpoint = "https://api-v3.mbta.com/stops/?filter[route]=" + id + "&filter[direction_id]=0"
+            console.log(endpoint)
+            const request = new XMLHttpRequest()
+            request.open('GET', endpoint, true)
+            request.onload = function() {
+                if (request.status == 400) {
+                    alert("An unknown error has occured. Please try again later.")
+                } else {
+                    const schedule = JSON.parse(this.response)
+                    addRows(schedule,num)
+                }
+            }
+            request.send()
         }
-        nav li{
-            list-style-type: none;
-            display: inline-block;
-            margin: 0 10px 0 0;
+
+        function addRows(stops,num) {
+            if (num == 1) {
+                current_stops1 = []
+            } else {
+                current_stops2 = []
+            }
+            const select = document.getElementById("listOfStops"+num)
+            select.options.length = 0;
+            const len = Object.keys(stops["data"]).length
+            for (var i = 0; i < len; i++) {
+                stop = {
+                    name: stops["data"][i]["attributes"]["name"],
+                    lati:stops["data"][i]["attributes"]["latitude"],
+                    long:stops["data"][i]["attributes"]["longitude"],
+                }
+                if (num == 1) {
+                    current_stops1.push(stop)
+                } else {
+                    current_stops2.push(stop)
+                }
+                const toAdd = document.createElement('option');
+                toAdd.text = stops["data"][i]["attributes"]["name"]
+                select.add(toAdd)
+            }
         }
-        nav a{
-            color: #fff;
-            font-size: 18px;
-            background: rgba(255,255,255,0.2);
-            text-decoration: none;
-            padding: 10px;
-            display: block;
+
+
+
+        function getEstimate(dep_lat,dep_long,arr_lat,arr_long) {
+            var origin1 = new google.maps.LatLng(parseFloat(dep_lat), parseFloat(dep_long));
+            var destinationB = new google.maps.LatLng(parseFloat(arr_lat), parseFloat(arr_long));
+            var service = new google.maps.DistanceMatrixService();
+            service.getDistanceMatrix(
+                {
+                    origins: [origin1],
+                    destinations: [destinationB],
+                    travelMode: 'TRANSIT',
+                }, callback);
+
+            function callback(response, status) {
+                // THIS IS WHERE THE DURATION IS RETURNED
+                s = response.rows[0].elements[0].duration.value
+                t = parseFloat((s-(s%=60))/60+(9<s?'.':':0')+s)
+
+
+                console.log(t);
+                duration = s * 1000;
+                finalFunction();
+            }
+
         }
-        main, header{
-            max-width: 960px;
-            margin: 30px auto;
-            padding: 0 10px;
-            color: #333;
+
+        function calculateTime() {
+            const obj_name = document.getElementById("listOfStops1").value
+            start = obj_name;
+            var dep_long = ""
+            var dep_lat = ""
+            for (var i = 0; i < current_stops1.length; i++) {
+                if (current_stops1[i].name == obj_name) {
+                    dep_long = current_stops1[i].long
+                    dep_lat = current_stops1[i].lati
+                }
+            }
+            const obj_name2 = document.getElementById("listOfStops2").value
+            end = obj_name2;
+            var arr_long = ""
+            var arr_lat = ""
+            for (var i = 0; i < current_stops2.length; i++) {
+                if (current_stops2[i].name == obj_name2) {
+                    arr_long = current_stops2[i].long
+                    arr_lat = current_stops2[i].lati
+                }
+            }
+            getEstimate(dep_lat,dep_long,arr_lat,arr_long)
         }
-    </style>
+
+
+        let start = 'Fenway';
+        let end = 'Copley';
+        let duration = '2400000';
+        let genre = 'rock';
+        function finalFunction(){ //redirect to link
+            genre = document.getElementById("listOfGenres").value;
+            window.location.href = '/profile/generatePlaylist?title='+genre+'&duration='+duration+'&start='+start+'&end='+end;
+        }
+
+    </script>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_mVdVzbrt6mvgsSzwFokCEqiBwm8MXy0">
+    </script>
 </head>
 <body>
-<nav>
-    <ul>
-        <% if (user) { %>
-        <li><a href="/auth/logout">Logout</a></li>
-        <% } else { %>
-        <li><a href="/auth/login">Login</a></li>
-        <% } %>
-        <li><a href="/">Homepage</a></li>
-        <li><a href="/profile">Profile</a></li>
-    </ul>
-</nav>
 <header>
-    <h1>Spotify OAuth Test</h1>
-    <h2>Homepage</h2>
+    <h1>Tune Your Ride</h1>
+
+    <% if (user) { %>
+        <h3><a href="/auth/logout">Logout</a></h3>
+    <% } else { %>
+        <h3><a href="/auth/spotify">Login</a></h3>
+    <% } %>
+
+
+    <% if (user) { %>
+        <body onload = "getRoutes(1)", onload = "getGenres()">
+
+        Departure Route: <select id = "listOfRoutes1">
+        </select>
+        <input id = "submit" type="submit" value="Load Stops" onclick = "clickSubmit(1)"> <br>
+        Departure Stop: <select id = "listOfStops1"> </select>
+
+        <br> <br>
+
+        Arrival Route: <select id = "listOfRoutes2">
+        </select>
+        <input id = "submit2" type="submit" value="Load Stops" onclick = "clickSubmit(2)"> <br>
+        Arrival Stop: <select class = "routes2"id = "listOfStops2"> </select> <br> <br>
+
+        Music Genre: <select id = "listOfGenres">
+        </select> <br> <br>
+
+
+
+
+        <button onclick = calculateTime()> Generate Playlist </button>
+        <p id = "time"></p>
+
+
+</body>
+    <% } else { %>
+    <h3>Login to generate a playlist for your ride!</h3>
+<% } %>
+
+
 </header>
 <main>
 
 </main>
 </body>
+
+<style>
+    h1 { color: #3dc9b3; -webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all 0.5s; transition: all 0.5s;  text-align: center; font-size: 100px;font-family: "Arial";}
+    h2 { color: #3dc9b3;    font-size: 40px;  text-transform: uppercase; font-weight: bold;  text-align: center; font-family: "Arial";}
+
+
+
+    h3 { font-size: 24px; margin: 1em 0; font-family: "Arial";}
+    body{font-size: 24px; font-family: "Arial";background-image: url("https://images.unsplash.com/photo-1492351642264-8bc9a6952d15?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1934&q=80");color: #3dc9b3; -webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all 0.5s; transition: all 0.5s;  text-align: center;}
+
+
+
+</style>
+
+
+
 </html>

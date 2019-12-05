@@ -25,7 +25,7 @@ router.get('/spotify', passport.authenticate('spotify', {
 
 //auth spotify callback
 router.get('/spotify/callback', passport.authenticate('spotify'), (req, res) => {
-    res.redirect('/profile');
+    res.redirect('/');
 });
 
 
