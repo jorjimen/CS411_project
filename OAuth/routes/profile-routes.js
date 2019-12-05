@@ -26,15 +26,15 @@ function getDate(){
     return date+' '+time;
 }
 
-//http://localhost:3000/profile/generatePlaylist?genre=<GENRE>&duration=<DURATION>
+//http://localhost:3000/profile/generatePlaylist?genre=<GENRE>&duration=<DURATION>&start=<START>&end=<END>
 router.get('/generatePlaylist', function(req, res) {
     let genre = req.query.title;
-    let duration = req.query.duration;
-    let counter = 0;
+    let duration = 600000//10 minutesreq.query.duration; // in MILLISECONDS
     let l1 = 'Location'; //req.query.start;
     let l2 = 'Destination'; //req.query.end;
 
-    let tracks = {};
+    let counter = 0;
+    let tracks = [];
     let redirectURL = '';
     let playlistID = '';
 
@@ -49,7 +49,7 @@ router.get('/generatePlaylist', function(req, res) {
     fetch(endpoint, {
         method: 'post',
         body:    JSON.stringify(body),
-        headers: { 'Authorization': 'Bearer ' + req.user.accessToken },
+        headers: { 'Authorization': 'Bearer ' + req.user.accessToken }
     })
         .then(response => {
             return response.json();
@@ -60,26 +60,52 @@ router.get('/generatePlaylist', function(req, res) {
             redirectURL = data.external_urls.spotify;
         })
         .then(findTracks) //find tracks to put into tracks variable
-        .then(addTracks) //add tracks into playlist
-        .then(redirectToSpotify)
         .catch(err => {
             console.log('Invalid Api Endpoint!');
             res.render('index', { title: 'The Error Page' });
         });
 
     function findTracks(){
-        tracks = {};
+        //fetch 20 at a time, add them to tracks one by one, adding the duration_ms to counter everytime and checking. if at the end of function if counter is still less than duration, call findtracks again.
+        //limitation, if duration is too long, will cap at 100 songs
 
-        //while counter < duration, add tracks
-        console.log('tracks found!')
+        let endpoint = 'https://api.spotify.com/v1/recommendations?limit=100&seed_genres=guitar';
+        fetch(endpoint, {
+            method: 'get',
+            headers: { 'Authorization': 'Bearer ' + req.user.accessToken }
+        })
+            .then(res => res.json())
+            .then(json => {
+                console.log(json.tracks.length);
+                for (let i = 0; i < json.tracks.length; i++){
+                    if (counter < duration){
+                        tracks.push(json.tracks[i].uri);
+                        counter += json.tracks[i].duration_ms;
+                    }
+                    else{
+                        console.log('enough tracks found!');
+                        break;
+                    }
+                }
+            }).then(checkCounter)
+
     }
 
-    function addTracks() {
+    function checkCounter(){
+        if (counter < duration){
+            findTracks();
+        }
+        else{
+            addTracks();
+        }
+    }
+
+    function addTracks() { //adds tracks into playlist then redirects to spotify
         fetch('https://api.spotify.com/v1/playlists/'+ playlistID + '/tracks', {
             method: 'post',
             body:    JSON.stringify(tracks),
-            headers: { 'Authorization': 'Bearer ' + req.user.accessToken },});
-        console.log('tracks added to playlist!');
+            headers: { 'Authorization': 'Bearer ' + req.user.accessToken }
+        }).then(redirectToSpotify);
     }
 
     function redirectToSpotify(){
