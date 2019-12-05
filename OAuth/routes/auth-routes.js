@@ -16,7 +16,7 @@ router.get('/logout', (req, res) =>{
 
 //auth spotify
 router.get('/spotify', passport.authenticate('spotify', {
-    scope: ['playlist-modify-public', 'user-read-private', 'user-follow-read', 'playlist-read-private', 'user-top-read']
+    scope: ['playlist-modify-public', 'playlist-modify-private', 'user-read-private', 'user-follow-read', 'playlist-read-private', 'user-top-read']
     }
 ), function(req, res) {
     // The request will be redirected to spotify for authentication, so this

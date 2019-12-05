@@ -3,3 +3,6 @@ OAuth/config/spotify.js
 OAuth/config/keys.js
 OAuth/config/mongodb.js
 OAuth/node_modules
+OAuth/.idea/workspace.xml
+OAuth/.idea/workspace.xml
+*.xml

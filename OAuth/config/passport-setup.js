@@ -27,13 +27,18 @@ passport.use(
             User.findOne({spotifyId: profile.id}).then((currentUser) =>{
                if(currentUser){
                    //user already exists
-                   console.log('User is: ' + currentUser);
+                   currentUser.accessToken = accessToken;
+                   currentUser.refreshToken = refreshToken;
+                   currentUser.save();
+                   console.log('Authorization Tokens refreshed for ' + currentUser);
                    done(null, currentUser);
                } else{
                    //if not, create user
                    new User({
                        username: profile.displayName,
-                       spotifyId: profile.id
+                       spotifyId: profile.id,
+                       accessToken: accessToken,
+                       refreshToken: refreshToken
                    }).save().then((newUser) => {
                        console.log('New User Created: ' + newUser);
                        done(null, newUser);
