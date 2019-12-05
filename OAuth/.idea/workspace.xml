@@ -23,10 +23,10 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="10.16.3" />
-    <property name="last_opened_file_path" value="D:/Temp/CS400 Repo/CS400" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -69,6 +69,13 @@
       <workItem from="1574570694688" duration="1292000" />
       <workItem from="1575463619248" duration="263000" />
       <workItem from="1575516550710" duration="14488000" />
+      <workItem from="1575533620546" duration="210000" />
+      <workItem from="1575559209154" duration="3858000" />
+      <workItem from="1575564037285" duration="715000" />
+      <workItem from="1575565916287" duration="1065000" />
+      <workItem from="1575568163178" duration="865000" />
+      <workItem from="1575582432204" duration="3657000" />
+      <workItem from="1575586404771" duration="538000" />
     </task>
     <servers />
   </component>
