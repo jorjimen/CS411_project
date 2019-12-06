@@ -49,7 +49,9 @@
             if (num == 1) {
                 getRoutes("2")
             }
-            getGenres();
+            if (!genresGot){
+                getGenres();
+            }
         }
 
         function clickSubmit(num) {
