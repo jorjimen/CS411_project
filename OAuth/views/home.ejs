@@ -112,10 +112,8 @@
             function callback(response, status) {
                 // THIS IS WHERE THE DURATION IS RETURNED
                 s = response.rows[0].elements[0].duration.value
-                t = parseFloat((s-(s%=60))/60+(9<s?'.':':0')+s)
+                console.log(s);
 
-
-                console.log(t);
                 duration = s * 1000;
                 finalFunction();
             }
@@ -147,12 +145,13 @@
         }
 
 
-        let start = 'Fenway';
-        let end = 'Copley';
+        let start = 'Location';
+        let end = 'Destination';
         let duration = '2400000';
         let genre = 'rock';
         function finalFunction(){ //redirect to link
             genre = document.getElementById("listOfGenres").value;
+            console.log('/profile/generatePlaylist?title='+genre+'&duration='+duration+'&start='+start+'&end='+end);
             window.location.href = '/profile/generatePlaylist?title='+genre+'&duration='+duration+'&start='+start+'&end='+end;
         }
 
@@ -167,7 +166,6 @@
     <h1>Tune Your Ride</h1>
 
     <% if (user) { %>
-        <h2>Welcome !</h2>
         <h3><a href="/auth/logout">Logout</a></h3>
     <% } else { %>
         <h3><a href="/auth/spotify">Login</a></h3>
@@ -179,14 +177,14 @@
 
         Departure Route: <select id = "listOfRoutes1">
         </select>
-        <input id = "submit" type="submit" value="search" onclick = "clickSubmit(1)"> <br>
+        <input id = "submit" type="submit" value="Load Stops" onclick = "clickSubmit(1)"> <br>
         Departure Stop: <select id = "listOfStops1"> </select>
 
         <br> <br>
 
         Arrival Route: <select id = "listOfRoutes2">
         </select>
-        <input id = "submit2" type="submit" value="search" onclick = "clickSubmit(2)"> <br>
+        <input id = "submit2" type="submit" value="Load Stops" onclick = "clickSubmit(2)"> <br>
         Arrival Stop: <select class = "routes2"id = "listOfStops2"> </select> <br> <br>
 
         Music Genre: <select id = "listOfGenres">
@@ -195,7 +193,7 @@
 
 
 
-        <button onclick = calculateTime()> generate </button>
+        <button onclick = calculateTime()> Generate Playlist </button>
         <p id = "time"></p>
 
 
@@ -210,4 +208,16 @@
 
 </main>
 </body>
+
+<style>
+    h1 { color: #3dc9b3; -webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all 0.5s; transition: all 0.5s;  text-align: center; font-size: 100px;font-family: "Arial";}
+    h2 { color: #3dc9b3;    font-size: 40px;  text-transform: uppercase; font-weight: bold;  text-align: center; font-family: "Arial";}
+
+    h3 { font-size: 24px; margin: 1em 0; font-family: "Arial";}
+    body{font-size: 24px; font-family: "Arial";background-image: url("https://images.unsplash.com/photo-1492351642264-8bc9a6952d15?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1934&q=80");color: #3dc9b3; -webkit-transition: all 0.5s; -moz-transition: all 0.5s; -o-transition: all 0.5s; transition: all 0.5s;  text-align: center;}
+
+</style>
+
+
+
 </html>
